@@ -1,0 +1,321 @@
+---
+title: "Data Preparation"
+author: "Tyler Pelletier"
+date: "1/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '/Users/tylerpelletier/Desktop/pathogens-pachyderms/Path-Pachy CSV/')
+```
+In this script we are going to read in the data from the summer Pathogens-Pachyderms expedition in CSV format and combine it into a single data set. Then we will figure out how to do some checks on the data for consistency and accuracy. (AKA: we'll do some research and ask John)
+
+First we have to read in the data that was digitized by each person. DON'T FORGET to set up your root directory in the setup chunk. Then I'm checking to see what it looks like. The head and tail functions tell me how many lines I need to skip at the top of the data and whether I have a tail of empty rows in each data set. I can also check for any errors in importing the data.
+
+I noticed that I didn't like some of the column names for certain rows. So I changed them either to remove units or to make them more intuitive.
+
+I then used the str function to check the attributes of the data. I may need to set the attributes of some of the columns, such as the date column.
+```{r Lucas_Data}
+LM <- read.csv("Lucas_Summer_2021.csv", header = T, stringsAsFactors = F)
+head(LM)
+tail(LM) #no NA tail
+
+my_names <- c("Expedition", "Entry", "Entry_Date", "File_Name", "Collection_Date", "Note_Taker", "Project", "Plot", "Grid", "Plant_tag", "X_coord", "Y_coord", "Tool", "POM", "DBH", "Height", "Type", "Note")
+names(LM)[1:18] <- my_names[1:18]
+
+str(LM)
+
+#Here I change these columns from factors to dates
+LM$Entry_Date <- as.Date(LM$Entry_Date, format = "%d/%m/%y") 
+LM$Collection_Date <- as.Date(LM$Collection_Date, format = "%d/%m/%y")
+str(LM)
+```
+
+```{r Tyler_data}
+TP <- read.csv("Tyler_Summer_2021.csv", header = T, skip = 1, stringsAsFactors = F)
+names(TP)[1:18] <- my_names[1:18]
+
+head(TP)
+tail(TP) #no NA tail
+
+str(TP)
+
+TP$Entry_Date <- as.Date(TP$Entry_Date, format = "%d/%m/%y")
+TP$Collection_Date <- as.Date(TP$Collection_Date, format = "%d/%m/%y")
+str(TP)
+```
+
+With Jessica's data, we see that there is a large tail of blanks/NA's coming off the end of her data set so we have to remove it. We can't use na.omit for this because it will remove entire rows if there is one blank column in them, such as the note section. Instead, I found where the NA tail started and ended and deleted those specific rows.
+```{r Jessica_first_data}
+Jessica.1 <- read.csv("Jessica.1_Summer_2021.csv", skip = 2, header = T, stringsAsFactors = F)
+names(Jessica.1)[1:18] <- my_names[1:18]
+
+head(Jessica.1)
+tail(Jessica.1) #NA tail present at line 915
+
+Jessica.1 <- Jessica.1[,-19] #removing extra column
+head(Jessica.1) 
+J1 <- Jessica.1[-c(915:1288), ]
+tail(J1) #tail is removed
+
+str(J1)
+
+J1$Entry_Date <- as.Date(J1$Entry_Date, format = "%d/%m/%y")
+J1$Collection_Date <- as.Date(J1$Collection_Date, format = "%d/%m/%y")
+str(J1)
+```
+
+```{r Jessica_second_data}
+Jessica.2 <- read.csv("Jessica.2_Summer_2021.csv", header = T, skip = 2, stringsAsFactors = F)
+names(Jessica.2)[1:18] <- my_names[1:18]
+
+head(Jessica.2)
+tail(Jessica.2) #NA tail present at line 519
+
+Jessica.2 <- Jessica.2[,-19] #removing extra column
+head(Jessica.2) 
+
+J2 <- Jessica.2[-c(519:526), ]
+tail(J2) #tail is removed
+
+str(J2)
+
+J2$Entry_Date <- as.Date(J2$Entry_Date, format = "%d/%m/%y")
+J2$Collection_Date <- as.Date(J2$Collection_Date, format = "%d/%m/%y")
+str(J2)
+```
+
+Aubrey's data has an extra column in it, so I removed it.
+```{r Aubrey_data}
+Aubrey <- read.csv("Aubrey_Summer_2021.csv", header = T, skip = 2, stringsAsFactors = F)
+names(Aubrey)[1:18] <- my_names[1:18]
+
+head(Aubrey) #extra column present
+tail(Aubrey) #no NA tail
+
+AK <- Aubrey[,-19] #removing extra column
+head(AK) 
+
+str(AK)
+
+AK$Entry_Date <- as.Date(AK$Entry_Date, format = "%d/%m/%y")
+AK$Collection_Date <- as.Date(AK$Collection_Date, format = "%d/%m/%y")
+str(AK)
+```
+
+```{r Sara_data}
+Sara <- read.csv("Sara_Summer_2021.csv", header = T, stringsAsFactors = F)
+names(Sara)[1:18] <- my_names[1:18]
+
+head(Sara)
+tail(Sara) #NA tail present at line 1051
+
+SH <- Sara[-c(1051:1225), ]
+tail(SH) #tail is removed
+
+str(SH)
+
+SH$Entry_Date <- as.Date(SH$Entry_Date, format = "%d/%m/%y")
+SH$Collection_Date <- as.Date(SH$Collection_Date, format = "%d/%m/%y")
+str(SH)
+```
+
+```{r Enikoe_data}
+Eni <- read.csv("Enikoe_Summer_2021.csv", header = T, skip = 2, stringsAsFactors = F)
+names(Eni)[1:18] <- my_names[1:18]
+
+head(Eni)
+tail(Eni) #NA tail present at line 560
+
+Eni <- Eni[,-19] #removing extra column
+head(Eni) 
+
+EB <- Eni[-c(560:580), ]
+tail(EB) #tail is removed
+
+str(EB)
+
+EB$Entry_Date <- as.Date(EB$Entry_Date, format = "%d/%m/%y")
+EB$Collection_Date <- as.Date(EB$Collection_Date, format = "%d/%m/%y")
+str(EB)
+```
+
+```{r Mishka_data}
+Mishka <- read.csv("Mishka_Summer_2021.csv", header = T, skip = 2, stringsAsFactors = F)
+names(Mishka)[1:18] <- my_names[1:18]
+
+head(Mishka) #extra column present
+tail(Mishka) #no NA tail present (:
+
+HM <- Mishka[,-19] #removing extra column
+head(HM) 
+
+str(HM)
+
+HM$Entry_Date <- as.Date(HM$Entry_Date, format = "%d/%m/%y")
+HM$Collection_Date <- as.Date(HM$Collection_Date, format = "%d/%m/%y")
+str(HM)
+```
+
+Here I am combining the data sets vertically by columns with the same name.
+```{r Combining_Data}
+m1 = rbind(LM, TP)
+m2 = rbind(m1, J1)
+m3 = rbind(m2, J2)
+m4 = rbind(m3, AK)
+m5 = rbind(m4, SH)
+m6 = rbind(m5, EB)
+Full = rbind(m6, HM)
+```
+
+Here I am manipulating the data format a little bit and exploring the data.
+```{r data_exploration}
+str(Full)
+Full$Expedition = "Summer_2021" 
+Full$Entry = as.factor(Full$Entry)
+Full$Note_Taker = as.factor(Full$Note_Taker)
+Full$Project = as.factor(Full$Project)
+Full$Plot = as.factor(Full$Plot)
+Full$Grid = as.factor(Full$Grid)
+Full$Note = as.factor(Full$Note)
+Full$Type = as.factor(Full$Type)
+Full$Tool = as.factor(Full$Tool)
+
+levels(Full$Entry)
+levels(Full$Project) 
+levels(Full$Type) # must combine terms
+levels(Full$Tool) # combine terms 
+levels(Full$Grid) #'s 64, 85, 92, 16, 38, 41 need investigating
+levels(Full$Note) # must fix DBH in inches and ask Vincent to look through the notes after for directions on what to do
+```
+
+Here I reset the data because R doesn't like getting rid of levels of factors... It's just easier to manipulate when it's in Chr format.
+```{r}
+m1 = rbind(LM, TP)
+m2 = rbind(m1, J1)
+m3 = rbind(m2, J2)
+m4 = rbind(m3, AK)
+m5 = rbind(m4, SH)
+m6 = rbind(m5, EB)
+Full = rbind(m6, HM)
+```
+
+Now we can do some data wrangling
+```{r standardizing}
+sum(Full$Type=="liana")
+
+Full$Type[which(Full$Type=="liana", arr.ind=TRUE)] = "Liana" 
+Full$Type[which(Full$Type=="liana ", arr.ind=TRUE)] = "Liana"
+
+Full$Type[which(Full$Type=="sapling", arr.ind=TRUE)] = "Sapling"
+
+Full$Type[which(Full$Type=="tree", arr.ind=TRUE)] = "Tree"
+
+Full$Type[which(Full$Type=="SDG  Seedling", arr.ind=TRUE)] = "Seedling"
+Full$Type[which(Full$Type=="SDG  seedling", arr.ind=TRUE)] = "Seedling"
+Full$Type[which(Full$Type=="SDG - Seedling", arr.ind=TRUE)] = "Seedling"
+
+Full$Tool[which(Full$Tool=="DBh", arr.ind=TRUE)] = "DBH"
+```
+
+Here I fix all the typos in the Grid column by going back and checking the data images they were copied from and correcting it. This is tedious and boring.
+```{r Investigating_Grid_Column}
+sum(Full$Grid=="F8/J9")
+sum(Full$Grid== "I8/J9")
+which(Full$Grid=="F8/J9") # gives us the rows and we see it's all in a row
+Full[14227,]
+Full[14241,] # Checking IMG_1227 tells us that the grid is I8/J9
+
+Full$Grid[which(Full$Grid=="F8/J9", arr.ind=T)] = "I8/J9"
+
+sum(Full$Grid=="F8/J9")
+sum(Full$Grid=="I8/J9") #success
+
+#next problem 85
+sum(Full$Grid=="H7/J8")
+sum(Full$Grid== "H7/I8")
+which(Full$Grid=="H7/J8") #1997-2003
+Full[1997,]
+Full[2003,] #IMG_1498 looks like H7/I8
+
+Full$Grid[which(Full$Grid=="H7/J8", arr.ind=T)] = "H7/I8"
+
+sum(Full$Grid=="H7/J8")
+sum(Full$Grid== "H7/I8") # success
+
+#next problem 92
+sum(Full$Grid=="I4/G5") #just one row
+sum(Full$Grid== "F4/G5")
+which(Full$Grid=="I4/G5") 
+Full[11954,]
+
+Full$Grid[which(Full$Grid=="I4/G5", arr.ind=T)] = "F4/G5"
+
+sum(Full$Grid=="I4/G5")
+sum(Full$Grid== "F4/G5") # success
+
+#next problem 16
+sum(Full$Grid=="B4/E5") 
+sum(Full$Grid== "D4/E5")
+which(Full$Grid=="B4/E5") 
+Full[3152,]
+Full[3158,]
+
+Full$Grid[which(Full$Grid=="B4/E5", arr.ind=T)] = "D4/E5"
+
+sum(Full$Grid=="B4/E5")
+sum(Full$Grid== "D4/E5") # success
+
+#next problem 38
+sum(Full$Grid=="D5/C6") 
+sum(Full$Grid== "D5/E6")
+which(Full$Grid=="D5/C6") 
+Full[11029,]
+Full[11042,]
+
+Full$Grid[which(Full$Grid=="D5/C6", arr.ind=T)] = "D5/E6"
+
+sum(Full$Grid=="D5/C6")
+sum(Full$Grid== "D5/E6") # success
+
+#last problem 41
+sum(Full$Grid=="D6/F7") 
+sum(Full$Grid== "D6/E7")
+which(Full$Grid=="D6/F7") 
+Full[10754,]
+Full[10766,]
+
+Full$Grid[which(Full$Grid=="D6/F7", arr.ind=T)] = "D6/E7"
+
+sum(Full$Grid=="D6/F7")
+sum(Full$Grid== "D6/E7") # success
+```
+
+Putting the data back into factorial format
+```{r data_exploration2}
+str(Full)
+Full$Expedition = "Summer_2021" 
+Full$Entry = as.factor(Full$Entry)
+Full$Note_Taker = as.factor(Full$Note_Taker)
+Full$Project = as.factor(Full$Project)
+Full$Plot = as.factor(Full$Plot)
+Full$Grid = as.factor(Full$Grid)
+Full$Note = as.factor(Full$Note)
+Full$Type = as.factor(Full$Type)
+Full$Tool = as.factor(Full$Tool)
+
+levels(Full$Entry)
+levels(Full$Project) 
+levels(Full$Type) 
+levels(Full$Tool) 
+levels(Full$Grid) 
+levels(Full$Note) # convert all DBH in inches...must ask Vincent to look through the notes after for directions on what to do
+```
+
+```{r}
+which(Full$Note=="DBH in inches", arr.ind=T)
+```
+
+which(Full$Note=="DBH IN INCHES", arr.ind=T)
+
