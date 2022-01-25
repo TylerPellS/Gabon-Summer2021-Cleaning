@@ -167,6 +167,7 @@ m4 = rbind(m3, AK)
 m5 = rbind(m4, SH)
 m6 = rbind(m5, EB)
 Full = rbind(m6, HM)
+tail(Full)
 ```
 
 Here I am manipulating the data format a little bit and exploring the data.
@@ -191,7 +192,7 @@ levels(Full$Note) # must fix DBH in inches and ask Vincent to look through the n
 ```
 
 Here I reset the data because R doesn't like getting rid of levels of factors... It's just easier to manipulate when it's in Chr format.
-```{r}
+```{r Data_Reset}
 m1 = rbind(LM, TP)
 m2 = rbind(m1, J1)
 m3 = rbind(m2, J2)
@@ -199,6 +200,10 @@ m4 = rbind(m3, AK)
 m5 = rbind(m4, SH)
 m6 = rbind(m5, EB)
 Full = rbind(m6, HM)
+str(Full)
+head(Full)
+tail(Full)
+
 ```
 
 Now we can do some data wrangling
@@ -217,6 +222,7 @@ Full$Type[which(Full$Type=="SDG  seedling", arr.ind=TRUE)] = "Seedling"
 Full$Type[which(Full$Type=="SDG - Seedling", arr.ind=TRUE)] = "Seedling"
 
 Full$Tool[which(Full$Tool=="DBh", arr.ind=TRUE)] = "DBH"
+
 ```
 
 Here I fix all the typos in the Grid column by going back and checking the data images they were copied from and correcting it. This is tedious and boring.
@@ -292,30 +298,156 @@ sum(Full$Grid=="D6/F7")
 sum(Full$Grid== "D6/E7") # success
 ```
 
-Putting the data back into factorial format
+Putting the data into factorial format
 ```{r data_exploration2}
 str(Full)
 Full$Expedition = "Summer_2021" 
-Full$Entry = as.factor(Full$Entry)
-Full$Note_Taker = as.factor(Full$Note_Taker)
-Full$Project = as.factor(Full$Project)
 Full$Plot = as.factor(Full$Plot)
 Full$Grid = as.factor(Full$Grid)
-Full$Note = as.factor(Full$Note)
 Full$Type = as.factor(Full$Type)
 Full$Tool = as.factor(Full$Tool)
 
+levels(Full$Plot)
 levels(Full$Entry)
 levels(Full$Project) 
 levels(Full$Type) 
 levels(Full$Tool) 
 levels(Full$Grid) 
-levels(Full$Note) # convert all DBH in inches...must ask Vincent to look through the notes after for directions on what to do
+
 ```
+
+Looking at the Note column for all of the rows where I will have to convert DBH from inches to mm. I'm using the Note column to pull up the cells in the DBH column which need to be converted. We can compare these values to the converted values once we convert it.
+```{r Exploring_DBH}
+
+Full$DBH[which(Full$Note=="DBH in inches", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH IN INCHES ", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches + COULA EDULIS", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches + height estimated", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches AND height estimated", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches AND HEIGHT ESTIMATED", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH IN INCHES, estimated height", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches; 1.3 @ vertical height not from base", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches; bobgunea fistuliadeas, porosa (common name)", arr.ind=T)]
+
+```
+
+Now we will convert DBH from inches to millimeters for those rows using an "if" statement
+```{r Converting_DBH}
+
+install.packages("measurements")
+library('measurements')
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+
+Full$DBH[which(Full$Note=="DBH in inches", arr.ind=T)]
+# It looks like this does what we want it to do, even if it's not the most concise way to do it. I think a loop would be better, but maybe not.
+
+#checking to see if it just converted the whole column
+head(Full)
+tail(Full) # it looks like it only converted the cells we wanted to convert :)
+
+# now we'll do it for every case of DBH in inches in the above chunk
+Full$DBH <- ifelse(Full$Note=="DBH IN INCHES ", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches + COULA EDULIS", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches + height estimated", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches AND height estimated", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches AND HEIGHT ESTIMATED", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH IN INCHES, estimated height", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches; 1.3 @ vertical height not from base", 
+                   conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+
+Full$DBH <- ifelse(Full$Note=="DBH in inches; bobgunea fistuliadeas, porosa (common name)", conv_unit(Full$DBH, "inch", "mm"), Full$DBH)
+```
+
+So we just converted the DBH from inches to mm. Now we need to make sure there is no surprise here before going forward.
+```{r Checking_DBH_Conversion}
+Full$DBH[which(Full$Note=="DBH in inches", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH IN INCHES ", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches + COULA EDULIS", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches + height estimated", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches AND height estimated", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches AND HEIGHT ESTIMATED", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH IN INCHES, estimated height", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches; 1.3 @ vertical height not from base", arr.ind=T)]
+Full$DBH[which(Full$Note=="DBH in inches; bobgunea fistuliadeas, porosa (common name)", arr.ind=T)]
+
+head(Full$DBH)
+# All of the values appear to have been converted successfully and we didn't mess up the entire DBH column :)
+```
+
+Now I'm going to remove the DBH in inches notes from the note column. 
+```{r Removing_Inches_Notes}
+unique(Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH IN INCHES ", 
+                   "", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches", 
+                   "", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches + COULA EDULIS", 
+                   "Coula edulis", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches + height estimated", 
+                   "height estimated", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches AND height estimated", 
+                   "height estimated", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches AND HEIGHT ESTIMATED", 
+                   "height estimated", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH IN INCHES, estimated height", 
+                   "height estimated", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches; 1.3 @ vertical height not from base", 
+                   "DBH 1.3m from ground", Full$Note)
+
+Full$Note <- ifelse(Full$Note=="DBH in inches; bobgunea fistuliadeas, porosa (common name)", "bobgunea fistuliadeas, porosa (common name)", Full$Note)
+unique(Full$Note)
+```
+
+I might as well also standardize the column a bit while I'm at it.
+```{r Standardizing}
+unique(Full$Note)
+
+Full$Note = with(Full, ifelse(Note %in% c(".", " ") , "", Note))
+
+Full$Note = with(Full, ifelse(Note %in% c("HEIght estimated", "estimated height", " height estimated", "estime", "Estime", "estime ", "taille estime ", "estimate", "Estimated Height", "Height estimated"), "Height Estimated", Note))
+  
+Full$Note = with(Full, ifelse(Note %in% c("under the fork", "before fork","DBH before split", "sous fourche", "cp split"), "DBH before fork", Note))
+                              
+Full$Note = with(Full,ifelse(Note %in% c("biggest trunk measured", "Biggest trunk measured", "biggest fork", "dbh of biggest trunk", "tallest stem", "Biggest stem", "on + biggest trunk DBH", "DBH taken from biggest branch", "measured at biggest fork", "biggest branch", "Biggest fork", "big fork", "DBH of the biggest trunk", "Caliper on the biggest trunk", "gros trane "), "Biggest Trunk", Note))
+
+unique(Full$Note)
+```
+
 
 ```{r}
-which(Full$Note=="DBH in inches", arr.ind=T)
+write.csv(Full,"/Users/tylerpelletier/Desktop/EXP2_Data", row.names = FALSE)
+
+read.csv("EXP2_Data", header = T) # seems to be in correct format
 ```
 
-which(Full$Note=="DBH IN INCHES", arr.ind=T)
+
+
+
+
+
+
+
 
