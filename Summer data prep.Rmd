@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = '/Users/tylerpelletier/Desktop/pathogens-pachyderms/Path-Pachy CSV/')
+knitr::opts_knit$set(root.dir = '/Users/tylerpelletier/Desktop/pathogens-pachyderms/Path-Pach_Data/Path-Pachy CSV')
 ```
 In this script we are going to read in the data from the summer Pathogens-Pachyderms expedition in CSV format and combine it into a single data set. Then we will figure out how to do some checks on the data for consistency and accuracy. (AKA: we'll do some research and ask John)
 
@@ -437,12 +437,18 @@ unique(Full$Note)
 ```
 
 
-```{r}
-write.csv(Full,"/Users/tylerpelletier/Desktop/EXP2_Data", row.names = FALSE)
+```{r writing_csv_file}
+#write.csv(Full,"/Users/tylerpelletier/Desktop/EXP2_Data.csv", row.names = FALSE)
 
-read.csv("EXP2_Data", header = T) # seems to be in correct format
+#read.csv("EXP2_Data.csv", header = T) # seems to be in correct format
 ```
 
+```{r}
+install.packages("openxlsx")
+library("openxlsx")
+
+write.xlsx(Full, file = "/Users/tylerpelletier/Desktop/EXP2_Data.xlsx", asTable = FALSE, overwrite = TRUE)
+```
 
 
 
