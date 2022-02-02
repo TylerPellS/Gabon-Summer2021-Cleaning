@@ -447,7 +447,7 @@ unique(Full$Note)
 install.packages("openxlsx")
 library("openxlsx")
 
-write.xlsx(Full, file = "/Users/tylerpelletier/Desktop/EXP2_Data.xlsx", asTable = FALSE, overwrite = TRUE)
+write.xlsx(Full, file = "/Users/tylerpelletier/Desktop/EXP2_Data.xlsx", asTable = FALSE, overwrite = TRUE) 
 ```
 
 
